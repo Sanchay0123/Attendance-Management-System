@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export default defineConfig(async () => ({
+export default defineConfig({
   plugins: [
     react(),
     runtimeErrorOverlay(),
@@ -16,7 +16,9 @@ export default defineConfig(async () => ({
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [
-          (await import("@replit/vite-plugin-cartographer")).cartographer(),
+          await import("@replit/vite-plugin-cartographer").then((m) =>
+            m.cartographer(),
+          ),
         ]
       : []),
   ],
@@ -28,7 +30,7 @@ export default defineConfig(async () => ({
   },
   root: path.resolve(__dirname, "client"),
   build: {
-    outDir: path.resolve(__dirname, "dist/public"),
+    outDir: path.resolve(__dirname, "../server/public"),
     emptyOutDir: true,
   },
-}));
+});
