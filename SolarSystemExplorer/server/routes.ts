@@ -61,17 +61,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/attendance", requireAuth, requireRole(["student"]), async (req, res) => {
     try {
+      console.log("Received attendance request:", req.body);
+      
       const data = insertAttendanceSchema.parse({
         ...req.body,
         studentId: req.user!.id,
         date: new Date(),
       });
+      
+      console.log("Parsed attendance data:", data);
       const attendance = await storage.createAttendance(data);
+      console.log("Attendance created:", attendance);
+      
       res.status(201).json(attendance);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid request data" });
+        console.error("Zod validation error:", error.errors);
+        res.status(400).json({ 
+          message: "Invalid request data",
+          errors: error.errors
+        });
       } else {
+        console.error("Attendance error:", error);
         res.status(500).json({ message: "Internal server error" });
       }
     }

@@ -14,7 +14,11 @@ export default function QRScanner() {
 
   const attendanceMutation = useMutation({
     mutationFn: async (classId: number) => {
-      const res = await apiRequest("POST", "/api/attendance", { classId });
+      // Include the required status field for attendance
+      const res = await apiRequest("POST", "/api/attendance", { 
+        classId,
+        status: "present" // Default status is "present"
+      });
       return res.json();
     },
     onSuccess: () => {
@@ -25,9 +29,10 @@ export default function QRScanner() {
       });
     },
     onError: (error: Error) => {
+      console.error('Attendance error:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to mark attendance",
         variant: "destructive",
       });
     },

@@ -50,6 +50,10 @@ export const insertAttendanceSchema = createInsertSchema(attendance);
 export const insertNotificationSchema = createInsertSchema(notifications);
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertClass = z.infer<typeof insertClassSchema>;
+export type InsertAttendance = z.infer<typeof insertAttendanceSchema>;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+
 export type User = typeof users.$inferSelect;
 export type Class = typeof classes.$inferSelect;
 export type Attendance = typeof attendance.$inferSelect;
