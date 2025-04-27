@@ -4,8 +4,9 @@ import { setupAuth } from "./auth";
 import { storage } from "./storage";
 import { z } from "zod";
 import { insertClassSchema, insertAttendanceSchema, insertNotificationSchema } from "@shared/schema";
+import type { Express, Request, Response, NextFunction } from "express";
 
-function requireAuth(req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.isAuthenticated()) {
     return res.status(401).json({ message: "Unauthorized" });
   }
@@ -13,7 +14,7 @@ function requireAuth(req: Express.Request, res: Express.Response, next: Express.
 }
 
 function requireRole(roles: string[]) {
-  return (req: Express.Request, res: Express.Response, next: Express.NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role)) {
       return res.status(403).json({ message: "Forbidden" });
     }
@@ -32,7 +33,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Admin can see all classes
       const classes = await storage.getClassesByTeacher(-1);
       res.json(classes);
-    } else {
+    } else if (req.user!.role === "student") {
+         // Students can see all classes for scanning attendance
+           const classes = await storage.getClassesByTeacher(-1);
+           res.json(classes); }
+    else {
       res.status(403).json({ message: "Forbidden" });
     }
   });

@@ -19,8 +19,9 @@ export default function Timetable({ editable = false, showAllClasses = false }: 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const { user } = useAuth();
 
-  const { data: classes } = useQuery<Class[]>({
+  const { data: classes, refetch: refetchClasses } = useQuery<Class[]>({
     queryKey: ["/api/classes"],
+    refetchInterval: 10000, // Refetch every 10 seconds to keep classes updated
   });
 
   const createClassMutation = useMutation({
