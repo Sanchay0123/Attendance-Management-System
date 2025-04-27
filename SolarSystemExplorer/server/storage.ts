@@ -82,6 +82,20 @@ export class MemStorage implements IStorage {
     );
   }
 
+  async checkExistingAttendance(studentId: number, classId: number, date: Date): Promise<boolean> {
+    // Get attendance records for this student
+    const studentAttendance = await this.getAttendanceByStudent(studentId);
+    
+    // Check if there's already an attendance record for this class on the same day
+    return studentAttendance.some(record => {
+      const recordDate = new Date(record.date);
+      return record.classId === classId && 
+             recordDate.getFullYear() === date.getFullYear() &&
+             recordDate.getMonth() === date.getMonth() &&
+             recordDate.getDate() === date.getDate();
+    });
+  }
+
   async createNotification(insertNotification: InsertNotification): Promise<Notification> {
     const id = this.currentId.notifications++;
     const notification = { ...insertNotification, id };

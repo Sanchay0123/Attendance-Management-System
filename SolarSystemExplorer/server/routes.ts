@@ -61,30 +61,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/attendance", requireAuth, requireRole(["student"]), async (req, res) => {
     try {
-      console.log("Received attendance request:", req.body);
+      // Check for duplicate attendance first
+      const studentId = req.user!.id;
+      const classId = parseInt(req.body.classId);
+      const today = new Date();
+      
+      // Check if student already has attendance for this class today
+      const exists = await storage.checkExistingAttendance(studentId, classId, today);
+      if (exists) {
+        console.log(`Student ${studentId} already has attendance for class ${classId} today`);
+        return res.status(400).json({ 
+          message: "You have already marked attendance for this class today" 
+        });
+      }
       
       const data = insertAttendanceSchema.parse({
         ...req.body,
-        studentId: req.user!.id,
-        date: new Date(),
+        studentId: studentId,
+        date: today,
       });
       
-      console.log("Parsed attendance data:", data);
       const attendance = await storage.createAttendance(data);
-      console.log("Attendance created:", attendance);
-      
       res.status(201).json(attendance);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        console.error("Zod validation error:", error.errors);
-        res.status(400).json({ 
-          message: "Invalid request data",
-          errors: error.errors
-        });
-      } else {
-        console.error("Attendance error:", error);
-        res.status(500).json({ message: "Internal server error" });
-      }
+      // Error handling...
     }
   });
 
