@@ -19,9 +19,10 @@ export default function Timetable({ editable = false, showAllClasses = false }: 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const { user } = useAuth();
 
-  const { data: classes, refetch: refetchClasses } = useQuery<Class[]>({
+  const { data: classes, refetch: refetchClasses, error: classesError } = useQuery<Class[]>({
     queryKey: ["/api/classes"],
     refetchInterval: 10000, // Refetch every 10 seconds to keep classes updated
+    
   });
 
   const createClassMutation = useMutation({
@@ -50,6 +51,20 @@ export default function Timetable({ editable = false, showAllClasses = false }: 
           onSelect={(date) => date && setSelectedDate(date)}
           className="rounded-md border"
         />
+
+        
+        <div className="flex flex-col gap-2">
+          <Button onClick={() => refetchClasses()}>
+            Refresh Classes
+          </Button>
+          {!editable && (
+            <div className="text-xs text-muted-foreground">
+              {classes ? `${classes.length} classes loaded` : 'No classes loaded'}
+              {classesError && <div className="text-red-500">Error: {(classesError as Error).message}</div>}
+            </div>
+          )}
+        </div>
+
 
         {editable && (
           <Dialog>

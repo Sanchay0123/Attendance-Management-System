@@ -26,20 +26,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupAuth(app);
 
   app.get("/api/classes", requireAuth, async (req, res) => {
+    console.log(`Fetching classes for user role: ${req.user!.role}, user id: ${req.user!.id}`);
+    let classes = [];
+    
     if (req.user!.role === "teacher") {
-      const classes = await storage.getClassesByTeacher(req.user!.id);
-      res.json(classes);
+      classes = await storage.getClassesByTeacher(req.user!.id);
     } else if (req.user!.role === "admin") {
       // Admin can see all classes
-      const classes = await storage.getClassesByTeacher(-1);
-      res.json(classes);
+      classes = await storage.getClassesByTeacher(-1);
     } else if (req.user!.role === "student") {
-         // Students can see all classes for scanning attendance
-           const classes = await storage.getClassesByTeacher(-1);
-           res.json(classes); }
-    else {
-      res.status(403).json({ message: "Forbidden" });
+      // Students can see all classes for scanning attendance
+      classes = await storage.getClassesByTeacher(-1);
+    } else {
+      return res.status(403).json({ message: "Forbidden" });
     }
+    
+    console.log(`Returning ${classes.length} classes`);
+    res.json(classes);
   });
 
   app.post("/api/classes", requireAuth, requireRole(["teacher", "admin"]), async (req, res) => {

@@ -53,6 +53,11 @@ export class MemStorage implements IStorage {
   }
 
   async getClassesByTeacher(teacherId: number): Promise<Class[]> {
+    // If teacherId is -1, return all classes (for student/admin view)
+    if (teacherId === -1) {
+      return Array.from(this.classes.values());
+    }
+    // Otherwise, filter by the specific teacherId
     return Array.from(this.classes.values()).filter(
       (class_) => class_.teacherId === teacherId,
     );
