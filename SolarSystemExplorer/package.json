@@ -4,10 +4,9 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
+    "build": "node --max_old_space_size=1024 ./node_modules/.bin/vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "cross-env NODE_ENV=production node --max_old_space_size=1024 dist/index.js",
     "dev": "npm run start",
-    "build": "node --max_old_space_size=1024 ./node_modules/.bin/vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
-
 
 
 
